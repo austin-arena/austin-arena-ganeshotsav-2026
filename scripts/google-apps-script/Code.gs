@@ -4,8 +4,16 @@
  * Paste this into Extensions → Apps Script of your Google Sheet, then deploy
  * as a Web App (Execute as: Me, Who has access: Anyone).
  *
- * Copy the deployment URL into GOOGLE_SHEETS_WEBAPP_URL and set the same
- * secret in both Script Properties and GOOGLE_SHEETS_SHARED_SECRET.
+ * Two callers are supported:
+ *
+ * 1. Server deployments (Vercel) — the /api/register route posts JSON and
+ *    keeps GOOGLE_SHEETS_SHARED_SECRET private.
+ * 2. Static deployments (GitHub Pages) — the browser posts directly with a
+ *    `text/plain` body. That keeps it a CORS "simple request", because Apps
+ *    Script cannot answer the preflight an `application/json` body triggers.
+ *
+ * The body is read from e.postData.contents either way, so the content type
+ * does not matter here.
  */
 
 const SHEET_NAME = 'Registrations';
@@ -24,6 +32,11 @@ const HEADERS = [
   'Consent',
 ];
 
+/** Health check — open the /exec URL in a browser to confirm the deployment. */
+function doGet() {
+  return json({ ok: true, service: 'ganeshotsav-registrations' });
+}
+
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
@@ -31,6 +44,11 @@ function doPost(e) {
 
     if (expected && body.secret !== expected) {
       return json({ ok: false, message: 'Unauthorized' });
+    }
+
+    // Reject obvious bot traffic that filled the hidden honeypot field.
+    if (body.website) {
+      return json({ ok: false, message: 'Invalid submission' });
     }
 
     const sheet = getSheet();

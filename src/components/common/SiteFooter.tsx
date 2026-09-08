@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { NAV_LINKS, SOCIETY } from "@/config/site";
+import { asset, NAV_LINKS, SOCIETY } from "@/config/site";
 
 export default function SiteFooter() {
   return (
@@ -9,7 +9,7 @@ export default function SiteFooter() {
         <div>
           <Image
             className="footerLogo"
-            src="/austin-arena-logo-white.svg"
+            src={asset("/austin-arena-logo-white.svg")}
             width={357}
             height={116}
             alt={`${SOCIETY.name} logo`}

@@ -1,8 +1,21 @@
-.next/
+# dependencies
 node_modules/
+
+# build output
+.next/
+out/
+*.tsbuildinfo
+
+# temporary folder used by scripts/build-static.mjs
+.api-routes-stash/
+
+# deployment
 .vercel
-.DS_Store
+
 # environment
 .env
 .env*.local
 !.env.example
+
+# os
+.DS_Store

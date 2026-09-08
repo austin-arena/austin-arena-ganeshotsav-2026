@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { asset } from "@/config/site";
 
 interface NavItem {
   href: string;
@@ -61,7 +62,7 @@ export default function Header() {
         <Link className="brand" href="/" aria-label="Austin Arena Ganeshotsav — home">
           <span className="brandLogo">
             <Image
-              src="/austin-arena-logo-white.svg"
+              src={asset("/austin-arena-logo-white.svg")}
               width={357}
               height={116}
               alt="Austin Arena"

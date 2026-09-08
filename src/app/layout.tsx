@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { SITE_URL, SOCIETY } from "@/config/site";
+import { SITE_URL, SOCIETY, asset } from "@/config/site";
 import "./globals.css";
 
 const title = `${SOCIETY.name} ${SOCIETY.festival}`;
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/austin-arena-logo.png" }],
+    icon: [{ url: asset("/icon.svg"), type: "image/svg+xml" }],
+    apple: [{ url: asset("/austin-arena-logo.png") }],
   },
   formatDetection: { telephone: true, address: false, email: true },
 };
@@ -62,7 +62,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN">
+    <html
+      lang="en-IN"
+      // CSS `url()` values are not rewritten by `basePath`, so decorative
+      // background art is passed in as a custom property instead.
+      style={
+        {
+          "--pattern-mandala": `url("${asset("/pattern-mandala.svg")}")`,
+        } as React.CSSProperties
+      }
+    >
       <body>
         <a className="skipLink" href="#main">
           Skip to main content

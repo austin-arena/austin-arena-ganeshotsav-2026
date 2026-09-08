@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { asset } from "@/config/site";
 
 interface SectionHeadingProps {
   kicker: string;
@@ -27,7 +28,7 @@ export default function SectionHeading({
       <Heading id={id}>{title}</Heading>
       <Image
         className="ornament"
-        src="/divider-ornament.svg"
+        src={asset("/divider-ornament.svg")}
         width={160}
         height={24}
         alt=""

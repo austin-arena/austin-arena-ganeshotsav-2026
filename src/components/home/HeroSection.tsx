@@ -4,7 +4,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 import Countdown from "@/components/Countdown";
 import type { FestivalEventsData } from "@/domain/events/types";
 import { formatLongDate } from "@/domain/events/utils";
-import { SOCIETY } from "@/config/site";
+import { SOCIETY, asset } from "@/config/site";
 
 interface HeroSectionProps {
   data: FestivalEventsData;
@@ -76,7 +76,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
           <aside className="heroCard" aria-label="Festival blessing">
             <Image
               className="heroMotif"
-              src="/ganpati-motif.svg"
+              src={asset("/ganpati-motif.svg")}
               width={240}
               height={240}
               alt=""
@@ -89,7 +89,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
             <p>May wisdom guide us and togetherness inspire us.</p>
             <Image
               className="heroLogo"
-              src="/austin-arena-logo-white.svg"
+              src={asset("/austin-arena-logo-white.svg")}
               width={357}
               height={116}
               alt={`${SOCIETY.name} logo`}

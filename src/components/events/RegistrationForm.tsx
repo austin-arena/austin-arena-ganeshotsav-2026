@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import type { FestivalEvent } from "@/domain/events/types";
 import type { ValidationErrors } from "@/domain/registration/schema";
+import { submitRegistrationForm } from "@/domain/registration/client";
 import {
   consumePendingRegistration,
   onRegistrationRequested,
@@ -77,28 +78,18 @@ export default function RegistrationForm({ events }: RegistrationFormProps) {
     };
 
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const result = await submitRegistrationForm(payload);
 
-      const result = (await response.json()) as {
-        ok: boolean;
-        message?: string;
-        errors?: ValidationErrors;
-      };
-
-      if (!response.ok || !result.ok) {
+      if (!result.ok) {
         setErrors(result.errors ?? {});
-        setMessage(result.message ?? "Something went wrong. Please try again.");
+        setMessage(result.message);
         setStatus("error");
         return;
       }
 
       form.reset();
       setSelected("");
-      setMessage(result.message ?? "Registration saved successfully.");
+      setMessage(result.message);
       setStatus("success");
     } catch {
       setMessage("Network error. Please check your connection and try again.");

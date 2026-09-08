@@ -5,12 +5,30 @@
  * another committee by editing a single file.
  */
 
-export const SITE_URL = (
+/**
+ * Sub-path the site is served from. Empty on Vercel and on custom domains;
+ * `/<repo>` for GitHub Project Pages. Injected by `next.config.ts`.
+ */
+export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
+
+const origin = (
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000")
 ).replace(/\/$/, "");
+
+/**
+ * Absolute site URL used for canonical links, Open Graph and the sitemap.
+ * The base path is appended automatically when it is not already present.
+ */
+export const SITE_URL =
+  BASE_PATH && !origin.endsWith(BASE_PATH) ? `${origin}${BASE_PATH}` : origin;
+
+/** Prefixes a `public/` asset path so it resolves under the base path. */
+export function asset(path: string): string {
+  return `${BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
 export const SOCIETY = {
   name: "Austin Arena",
