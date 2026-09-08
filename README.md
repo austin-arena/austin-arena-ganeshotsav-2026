@@ -249,6 +249,8 @@ Only `Date`, `Event` and `Venue` are required. Everything else is optional.
 | `Contact` | No | `9876543210` | Rendered as a tap-to-call or mailto link |
 | `Rules` | No | `Bring your own colours.` | Shown as a "Please note" panel |
 | `Registration` | No | `https://forms.gle/abc` | A bare `example.com/x` is upgraded to `https://` |
+| `Link` | No | `https://society.site/talent` | Extra action button; opens in a new tab |
+| `Link Label` | No | `Read Rules` | Button text for `Link` (defaults to `View Details`) |
 | `Featured` | No | `Yes` | Accepts `yes`, `y`, `true`, `1`, `x`, `✓` |
 | `Status` | No | `Scheduled` | `Cancelled` or `Postponed` show a badge |
 

@@ -22,6 +22,8 @@ const COLUMN_ALIASES = {
   contact: ["contact", "contactnumber", "phone", "mobile", "email"],
   rules: ["rules", "guidelines", "note", "notes"],
   registration: ["registration", "registrationlink", "register", "registerlink", "form"],
+  link: ["link", "eventlink", "morelink", "moreinfo", "infolink", "url", "page", "website"],
+  linkLabel: ["linklabel", "linktext", "linkname", "linktitle", "actionlabel", "buttonlabel"],
   featured: ["featured", "highlight", "highlighted", "ispinned", "pinned"],
   lifecycle: ["status", "eventstatus", "state"],
 } as const;
@@ -270,6 +272,10 @@ export function mapSheetRows(rows: EventSheetRow[]): MapResult {
       issues.push({ row: rowNumber, message: `${urlError} (${name})` });
     }
 
+    // Optional "more info" link. Non-critical: a bad value is dropped, not fatal.
+    const { url: link } = normalizeUrl(readField(lookup, "link"));
+    const linkLabel = link ? squish(readField(lookup, "linkLabel")) || undefined : undefined;
+
     const participants = humanizeOptional(readField(lookup, "participants"));
 
     let id = `${dateISO}-${slugify(name)}`;
@@ -295,6 +301,8 @@ export function mapSheetRows(rows: EventSheetRow[]): MapResult {
       ageGroup: humanizeOptional(readField(lookup, "ageGroup")) ?? participants,
       rules: squish(readField(lookup, "rules")) || undefined,
       registrationLink,
+      link,
+      linkLabel,
       featured: toBoolean(readField(lookup, "featured")),
       lifecycle: normalizeLifecycle(readField(lookup, "lifecycle")),
     });

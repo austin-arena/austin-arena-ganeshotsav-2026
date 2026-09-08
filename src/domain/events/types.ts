@@ -28,6 +28,10 @@ export interface EventRecord {
   ageGroup?: string;
   rules?: string;
   registrationLink?: string;
+  /** Optional "more info" link from the sheet's `Link` column. */
+  link?: string;
+  /** Optional button label for {@link link}, from the sheet's `Link Label` column. */
+  linkLabel?: string;
   featured: boolean;
   lifecycle: EventLifecycle;
 }

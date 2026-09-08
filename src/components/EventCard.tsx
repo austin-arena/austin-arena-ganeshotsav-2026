@@ -2,6 +2,8 @@ import {
   CalendarDays,
   Clock3,
   ExternalLink,
+  Link2,
+  Mail,
   MapPin,
   Phone,
   Star,
@@ -9,6 +11,8 @@ import {
   Users,
 } from "lucide-react";
 import RegisterLink from "@/components/events/RegisterLink";
+import EventRules from "@/components/events/EventRules";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import type { FestivalEvent } from "@/domain/events/types";
 
 interface EventCardProps {
@@ -110,51 +114,57 @@ export default function EventCard({
 
         {event.contact ? (
           <p className="eventContact">
-            <Phone aria-hidden="true" />
-            <span className="srOnly">Contact: </span>
+            <span className="srOnly">Contact: {event.contact}</span>
             {event.contact.includes("@") ? (
-              <a href={`mailto:${event.contact}`}>{event.contact}</a>
+              <a
+                className="contactIcon"
+                href={`mailto:${event.contact}`}
+                aria-label={`Email ${event.contact}`}
+              >
+                <Mail aria-hidden="true" />
+              </a>
             ) : (
-              <a href={`tel:${event.contact.replace(/\s/g, "")}`}>{event.contact}</a>
+              <>
+                <a
+                  className="contactIcon isCall"
+                  href={`tel:${event.contact.replace(/[^\d+]/g, "")}`}
+                  aria-label={`Call ${event.contact}`}
+                >
+                  <Phone aria-hidden="true" />
+                </a>
+                <a
+                  className="contactIcon isWhatsapp"
+                  href={`https://wa.me/${event.contact.replace(/[^\d]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Message ${event.contact} on WhatsApp (opens in a new tab)`}
+                >
+                  <WhatsAppIcon />
+                </a>
+              </>
             )}
           </p>
         ) : null}
 
-        {event.rules ? (
-          <p className="eventRules">
-            <strong>Please note:</strong> {event.rules}
-          </p>
-        ) : null}
+        {event.rules ? <EventRules text={event.rules} /> : null}
 
-        <div className="eventActions">
-          {isCancelled ? (
+        {isCancelled ? (
+          <div className="eventActions">
             <p className="eventNotice">This event has been cancelled.</p>
-          ) : (
-            <>
-              {event.registrationLink && canRegister ? (
-                <a
-                  className="button"
-                  href={event.registrationLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Register online for ${event.name} (opens in a new tab)`}
-                >
-                  Register Online <ExternalLink aria-hidden="true" />
-                </a>
-              ) : null}
-
-              {showFormShortcut && canRegister ? (
-                <RegisterLink eventId={event.id} eventName={event.name}>
-                  Society Form
-                </RegisterLink>
-              ) : null}
-
-              {!event.registrationLink && !showFormShortcut ? (
-                <p className="eventNotice">Open to all society residents.</p>
-              ) : null}
-            </>
-          )}
-        </div>
+          </div>
+        ) : event.link ? (
+          <div className="eventActions">
+            <a
+              className="button"
+              href={event.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${event.linkLabel || "View Details"}: ${event.name} (opens in a new tab)`}
+            >
+              {event.linkLabel || "View Details"} <ExternalLink aria-hidden="true" />
+            </a>
+          </div>
+        ) : null}
       </div>
     </article>
   );

@@ -1510,35 +1510,84 @@ footer {
 
 .eventContact {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.55rem;
-    margin: 0 0 0.7rem;
+    gap: 1rem;
+    /* Clear separation from the rules block that follows. */
+    margin: 0 0 1.1rem;
     font-size: 0.88rem;
 }
 
-.eventContact svg {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
+.contactIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--cream-100);
+    color: var(--maroon-600);
+    border: 1px solid rgba(140, 36, 21, 0.14);
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.contactIcon:hover {
+    background: var(--cream-200, #f3e6d6);
+    transform: translateY(-1px);
+}
+
+.contactIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.contactIcon.isCall svg {
     color: var(--saffron-500);
 }
 
-.eventContact a {
-    color: var(--maroon-600);
-    font-weight: 600;
-    overflow-wrap: anywhere;
+.contactIcon.isWhatsapp {
+    background: #25d366;
+    border-color: #1eb457;
+    color: #fff;
+}
+
+.contactIcon.isWhatsapp:hover {
+    background: #1eb457;
 }
 
 .eventRules {
-    margin: 0 0 0.9rem;
-    padding: 0.65rem 0.8rem;
+    /* Extra top margin separates rules clearly from the contact row above. */
+    margin: 0.9rem 0 0.9rem;
+    padding: 0.7rem 0.85rem;
     border-radius: var(--radius-sm);
     background: var(--cream-100);
     color: #5f524d;
     font-size: 0.85rem;
 }
 
+.eventRules p {
+    margin: 0;
+    line-height: 1.55;
+}
+
 .eventRules strong {
+    color: var(--maroon-700);
+}
+
+.rulesToggle {
+    margin-top: 0.4rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--maroon-600);
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.rulesToggle:hover {
     color: var(--maroon-700);
 }
 
