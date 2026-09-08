@@ -1,2 +1,2 @@
 :HL["/austin-arena-ganeshotsav-2026/_next/static/chunks/0muyozmw7phyi.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4180,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"cgj-DB4Yg_UHeJHRs_whO"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4180,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"DkTd5R4pB6cbjEu4MgizN"}
