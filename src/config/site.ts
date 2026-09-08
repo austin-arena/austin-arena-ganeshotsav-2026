@@ -6,16 +6,13 @@
  */
 
 /**
- * Sub-path the site is served from. Empty on Vercel and on custom domains;
+ * Sub-path the site is served from. Empty on a custom domain or user site;
  * `/<repo>` for GitHub Project Pages. Injected by `next.config.ts`.
  */
 export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
 
 const origin = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000")
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 ).replace(/\/$/, "");
 
 /**

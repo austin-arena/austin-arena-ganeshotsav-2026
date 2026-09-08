@@ -4,12 +4,13 @@ A production-ready, mobile-first Ganeshotsav event portal built with Next.js App
 
 **Google Sheets is the source of truth for events.** The committee edits a spreadsheet; the site picks up the changes automatically.
 
-The project builds for two hosting targets from the same codebase:
+The site is a **fully static export deployed to GitHub Pages** — no server, no backend. The sheet is read at build time for the initial HTML, and the browser refetches it on **every page load**, so committee edits appear on the next refresh **without a redeploy**.
 
-| Target | Command | What you get |
+| | Command | Result |
 | --- | --- | --- |
-| **Vercel** (default) | `npm run build` | Server rendering, 5-minute ISR, API routes, image optimisation |
-| **GitHub Pages** | `npm run build:static` | A fully static `out/` folder, no server required |
+| **Develop** | `npm run dev` | Local dev server |
+| **Build** | `npm run build` | A fully static `out/` folder for GitHub Pages |
+| **Deploy** | `npm run deploy` | Publish `out/` to the `gh-pages` branch |
 
 ---
 
@@ -28,8 +29,6 @@ The project builds for two hosting targets from the same codebase:
 - [Environment variables](#environment-variables)
 - [Scripts](#scripts)
 - [Deploying to GitHub Pages](#deploying-to-github-pages)
-- [Deploying to Vercel](#deploying-to-vercel)
-- [Publishing sheet edits instantly](#publishing-sheet-edits-instantly)
 - [Accessibility, SEO and performance](#accessibility-seo-and-performance)
 - [Extending the project](#extending-the-project)
 
@@ -38,7 +37,8 @@ The project builds for two hosting targets from the same codebase:
 ## Features
 
 - **Google Sheets as a CMS** — edit the schedule in a spreadsheet, no redeploy needed
-- **Fully static** — pages are prerendered and refreshed by Incremental Static Regeneration
+- **Live in the browser** — the sheet is refetched on every page load, so edits show up on refresh
+- **Fully static** — plain HTML/CSS/JS, hostable on GitHub Pages with no backend
 - **Resilient** — if the sheet is unreachable the site serves the last committed snapshot and shows a notice
 - **Sections** — Today's Event, Featured Events, Upcoming Events, Event Calendar, Aarti, Contribute, Register
 - **Filtering** — status, category and date-range filters plus full-text search on `/events`
@@ -54,33 +54,40 @@ The project builds for two hosting targets from the same codebase:
 The data layer is fully isolated from the UI. No component imports raw data.
 
 ```
-Google Sheet (CSV)  ─┐
-                     ├─→ source.ts ─→ mapper.ts ─→ service.ts ─→ pages ─→ components
-events.csv snapshot ─┘   (fetch +      (normalise    (group by
-                          fallback)     + validate)   timing)
+                    build time (Node)        every page load (browser)
+Google Sheet (CSV) ─→ source.ts ────┐        client-source.ts ──┐
+                                     ├─→ service.ts ─────────────┤
+events.csv snapshot ─→ (fallback) ──┘   (buildFestivalEventsData)│
+                                                                 ↓
+                                          useFestivalEvents → pages → components
 ```
+
+The build-time snapshot renders instantly (fast paint + SEO); `useFestivalEvents`
+then refetches the live sheet in the browser and swaps in the fresh data.
 
 | Path | Responsibility |
 | --- | --- |
-| `src/domain/events/config.ts` | Reads env vars, builds the sheet CSV URL |
+| `src/domain/events/config.ts` | Reads env vars, builds the sheet CSV URL (browser + build) |
 | `src/domain/events/csv.ts` | Dependency-free RFC 4180 CSV parser |
 | `src/domain/events/mapper.ts` | Column aliasing, normalisation, per-row validation |
-| `src/domain/events/source.ts` | Fetch with caching, timeout and fallback |
-| `src/domain/events/service.ts` | Groups events into today / upcoming / past / featured / calendar |
+| `src/domain/events/source.ts` | Build-time fetch with timeout and fallback |
+| `src/domain/events/client-source.ts` | Browser fetch of the live sheet on every load |
+| `src/domain/events/useFestivalEvents.ts` | Seeds from the build snapshot, then refreshes live |
+| `src/domain/events/service.ts` | `buildFestivalEventsData`: groups today / upcoming / past / featured / calendar |
 | `src/domain/events/text.ts` | Underscore removal and title casing |
 | `src/domain/events/utils.ts` | Timezone-safe dates, sorting, calendar grouping |
 | `src/config/site.ts` | Society name, address, aarti times, navigation |
 | `src/components/` | Presentation only |
 
-To move to a CMS, API or database later, replace **`source.ts` only**.
+To move to a CMS, API or database later, replace **`source.ts` and `client-source.ts`**.
 
 ### Rendering strategy
 
-Both pages are server components that are prerendered at build time and revalidated every 5 minutes. Only three small client islands ship JavaScript:
-
-- `Header` — mobile navigation drawer
-- `Countdown` — live timer
-- `EventsExplorer`, `RegistrationForm`, `RegisterLink` — filtering and form interaction
+Each route is a thin server shell that fetches the build-time seed and hands it
+to a client view (`HomeView` / `EventsView`). The view calls `useFestivalEvents`,
+which paints the seed immediately, then refetches the live sheet in the browser
+and swaps in the fresh data. Crawlers still receive the fully rendered snapshot in
+the initial HTML, so SEO is unaffected.
 
 ---
 
@@ -89,10 +96,8 @@ Both pages are server components that are prerendered at build time and revalida
 ```
 src/
   app/
-    page.tsx              Homepage: today, featured, upcoming, aarti, contribute, register
-    events/page.tsx       Full schedule with search and filters
-    api/register/         Registration handler   (server target only)
-    api/revalidate/       On-demand ISR trigger  (server target only)
+    page.tsx              Homepage server shell: fetches the seed, renders HomeView
+    events/page.tsx       Events server shell: fetches the seed, renders EventsView
     sitemap.ts            Generated sitemap.xml
     robots.ts             Generated robots.txt
     loading.tsx           Route-level skeletons
@@ -103,11 +108,11 @@ src/
     EventCard.tsx         Single event presentation
     Countdown.tsx         Live countdown to the festival
     common/               SectionHeading, EmptyState, DataNotice, SiteFooter, skeletons
-    events/               EventSection, EventCalendar, EventsExplorer, RegisterLink, forms
-    home/                 Hero, Aarti, Contribute, Register sections
+    events/               EventSection, EventCalendar, EventsExplorer, EventsView, forms
+    home/                 HomeView, Hero, Aarti, Contribute, Register sections
     seo/                  schema.org JSON-LD
   domain/
-    events/               config, csv, mapper, source, service, text, utils, types
+    events/               config, csv, mapper, source, client-source, useFestivalEvents, service, text, utils, types
     registration/         schema, client, sink
   config/site.ts          Society name, address, aarti times, navigation
   data/
@@ -186,17 +191,19 @@ https://docs.google.com/spreadsheets/d/1AbC...XyZ/edit#gid=0
 
 **4. Configure the app**
 
-In `.env.local` (and later in Vercel):
+Because the browser refetches the sheet on every page load, the URL must be a
+**`NEXT_PUBLIC_`** variable so it is available client-side. In `.env.local` (and
+later in your GitHub Pages Actions variables):
 
 ```bash
-GOOGLE_SHEET_ID=1AbC...XyZ
-GOOGLE_SHEET_NAME=Events
+NEXT_PUBLIC_GOOGLE_SHEET_ID=1AbC...XyZ
+NEXT_PUBLIC_GOOGLE_SHEET_NAME=Events
 ```
 
-If your tab has a different name, either update `GOOGLE_SHEET_NAME` or use the numeric `gid` from the URL:
+If your tab has a different name, either update `NEXT_PUBLIC_GOOGLE_SHEET_NAME` or use the numeric `gid` from the URL:
 
 ```bash
-GOOGLE_SHEET_GID=0
+NEXT_PUBLIC_GOOGLE_SHEET_GID=0
 ```
 
 **5. Verify**
@@ -206,14 +213,20 @@ npm run data:sync
 ```
 
 This downloads the sheet, validates it, and refreshes the committed snapshot.
+(`data:sync` also accepts the non-public `GOOGLE_SHEET_ID` / `GOOGLE_SHEET_CSV_URL`
+names, since it only runs locally.)
 
 ### Alternative: published CSV link
 
 Instead of a sheet id you can use **File → Share → Publish to web → CSV** and set the full link:
 
 ```bash
-GOOGLE_SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
+NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv
 ```
+
+> The published-CSV and `gviz/tq` endpoints send permissive CORS headers, so the
+> browser fetch succeeds. A plain `/edit` link is blocked by CORS — always use a
+> **Publish to web** link or the sheet id.
 
 ---
 
@@ -320,22 +333,16 @@ A local mock endpoint with deliberately messy data is included:
 
 ```bash
 node scripts/mock-sheet-server.mjs &
-GOOGLE_SHEET_CSV_URL=http://127.0.0.1:4999/events.csv npm run build
-GOOGLE_SHEET_CSV_URL=http://127.0.0.1:4999/events.csv npm start
+NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL=http://127.0.0.1:4999/events.csv npm run dev
 ```
 
 ---
 
 ## Registration submissions
 
-Registrations are appended to a Google Sheet through a Google Apps Script Web App. How the browser reaches that Web App depends on the hosting target — `submitRegistrationForm()` in `src/domain/registration/client.ts` picks the right path automatically.
+Registrations are appended to a Google Sheet through a Google Apps Script Web App. The site is a static export, so the browser posts to the Web App directly — `submitRegistrationForm()` in `src/domain/registration/client.ts` validates the payload in the browser first.
 
-| Target | Path | Validation |
-| --- | --- | --- |
-| Vercel | Form → `/api/register` → Apps Script | Server-side, plus rate limiting |
-| GitHub Pages | Form → Apps Script directly | In the browser (no server exists) |
-
-### 1. Create the Apps Script Web App (both targets)
+### 1. Create the Apps Script Web App
 
 1. In your registrations sheet: **Extensions → Apps Script**
 2. Paste the contents of `scripts/google-apps-script/Code.gs`
@@ -347,22 +354,9 @@ Registrations are appended to a Google Sheet through a Google Apps Script Web Ap
 
 Re-deploy as a **new version** after any script edit, otherwise the old code keeps running.
 
-### 2a. Wire it up on Vercel
+### 2. Wire it up
 
-The secret stays on the server and is never exposed to the browser:
-
-```bash
-GOOGLE_SHEETS_WEBAPP_URL=https://script.google.com/macros/s/XXXX/exec
-GOOGLE_SHEETS_SHARED_SECRET=a-long-random-string
-```
-
-Protections: server-side validation, a hidden honeypot field, a 5 requests/minute/IP throttle and a 10-second outbound timeout.
-
-> The in-memory rate limiter resets per serverless instance. For high traffic, swap it for Upstash Redis.
-
-### 2b. Wire it up on GitHub Pages
-
-There is no server, so the browser posts straight to Apps Script:
+The browser posts straight to Apps Script:
 
 ```bash
 NEXT_PUBLIC_REGISTRATION_ENDPOINT=https://script.google.com/macros/s/XXXX/exec
@@ -374,7 +368,7 @@ The request is sent as `text/plain` so it stays a CORS "simple request" — Apps
 
 ### If nothing is configured
 
-The form remains fully usable and reports success without persisting, so local development and preview deployments never hit a dead end. A warning is logged to the console.
+The form remains fully usable and reports success without persisting, so local development never hits a dead end. A warning is logged to the console.
 
 ---
 
@@ -392,32 +386,30 @@ Copy `.env.example` to `.env.local` for local work. The **Used by** column shows
 
 **Events source**
 
-| Variable | Used by | Purpose | Default |
-| --- | --- | --- | --- |
-| `GOOGLE_SHEET_ID` | Both | Events spreadsheet id | — |
-| `GOOGLE_SHEET_NAME` | Both | Tab name to read | `Events` |
-| `GOOGLE_SHEET_GID` | Both | Tab gid (takes priority over the name) | — |
-| `GOOGLE_SHEET_CSV_URL` | Both | Full published-CSV URL (overrides the id) | — |
-| `EVENTS_REVALIDATE_SECONDS` | Vercel | Sheet refetch window | `300` |
-| `REVALIDATE_SECRET` | Vercel | Secret for `POST /api/revalidate` | — |
+The browser refetches the sheet on every load, so use the `NEXT_PUBLIC_` names
+in production. The non-public names are still read at build time (and by
+`data:sync`) as a convenience for local work.
 
-`EVENTS_REVALIDATE_SECONDS` and `REVALIDATE_SECRET` have no effect on GitHub Pages — a static export reads the sheet once, at build time.
+| Variable | Exposed to browser | Purpose | Default |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL` | **Yes** | Full published-CSV URL (overrides the id) | — |
+| `NEXT_PUBLIC_GOOGLE_SHEET_ID` | **Yes** | Events spreadsheet id | — |
+| `NEXT_PUBLIC_GOOGLE_SHEET_NAME` | **Yes** | Tab name to read | `Events` |
+| `NEXT_PUBLIC_GOOGLE_SHEET_GID` | **Yes** | Tab gid (takes priority over the name) | — |
+| `GOOGLE_SHEET_CSV_URL` / `GOOGLE_SHEET_ID` / … | No | Build-time-only equivalents | — |
 
 **GitHub Pages**
 
-| Variable | Used by | Purpose | Default |
-| --- | --- | --- | --- |
-| `GITHUB_PAGES_BASE_PATH` | Pages | Sub-path the site is served from | `/austin-arena-ganeshotsav-2026` |
-| `GITHUB_PAGES` | Pages | Set to `true` by `build:static`; do not set by hand | — |
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `GITHUB_PAGES_BASE_PATH` | Sub-path the site is served from | `/austin-arena-ganeshotsav-2026` |
 
 **Registrations**
 
-| Variable | Used by | Purpose | Exposed to browser |
-| --- | --- | --- | --- |
-| `GOOGLE_SHEETS_WEBAPP_URL` | Vercel | Apps Script endpoint | No |
-| `GOOGLE_SHEETS_SHARED_SECRET` | Vercel | Secret checked by the Apps Script | No |
-| `NEXT_PUBLIC_REGISTRATION_ENDPOINT` | Pages | Apps Script endpoint posted to directly | **Yes** |
-| `NEXT_PUBLIC_REGISTRATION_SECRET` | Pages | Optional secret — see the warning above | **Yes** |
+| Variable | Exposed to browser | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_REGISTRATION_ENDPOINT` | **Yes** | Apps Script endpoint posted to directly |
+| `NEXT_PUBLIC_REGISTRATION_SECRET` | **Yes** | Optional secret — see the warning above |
 
 ---
 
@@ -426,8 +418,7 @@ Copy `.env.example` to `.env.local` for local work. The **Used by** column shows
 | Command | Description |
 | --- | --- |
 | `npm run dev` | Start the development server |
-| `npm run build` | Regenerate fallback data, then build for production (server target) |
-| `npm start` | Serve the production build |
+| `npm run build` | Export the static site into `out/` (alias of `build:static`) |
 | `npm run build:static` | Export a static site into `out/` for GitHub Pages |
 | `npm run verify:static` | Check the export for broken or unprefixed references |
 | `npm run preview:static` | Serve `out/` locally at the real base path |
@@ -443,11 +434,10 @@ Copy `.env.example` to `.env.local` for local work. The **Used by** column shows
 
 ## Deploying to GitHub Pages
 
-GitHub Pages serves static files only. The static build therefore differs from the Vercel build in three ways, all handled automatically:
+GitHub Pages serves static files only:
 
-- **API routes are excluded.** `scripts/build-static.mjs` moves `src/app/api` aside during the export and always restores it afterwards, even if the build fails.
 - **Images are unoptimised.** There is no server to run the Next.js image optimizer.
-- **The sheet is read at build time.** ISR cannot run, so a rebuild is needed to publish schedule changes (see [keeping the schedule fresh](#keeping-the-schedule-fresh)).
+- **The build snapshots the sheet** for the initial HTML; the browser then refreshes it live on every page load, so schedule edits appear on refresh without a redeploy. A rebuild is only needed for code changes.
 
 ### Base path
 
@@ -469,10 +459,10 @@ GITHUB_PAGES_BASE_PATH= npm run build:static
    | Variable | Example |
    | --- | --- |
    | `NEXT_PUBLIC_SITE_URL` | `https://austin-arena.github.io` |
-   | `GOOGLE_SHEET_ID` | `1AbC...XyZ` |
-   | `GOOGLE_SHEET_NAME` | `Events` |
+   | `NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL` | `https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv` |
    | `NEXT_PUBLIC_REGISTRATION_ENDPOINT` | `https://script.google.com/macros/s/XXXX/exec` |
 
+   Or use `NEXT_PUBLIC_GOOGLE_SHEET_ID` + `NEXT_PUBLIC_GOOGLE_SHEET_NAME` instead of the CSV URL.
    `GITHUB_PAGES_BASE_PATH` defaults to `/<repo-name>`, so you only need to set it for a user site or custom domain.
 
 3. Push to `main`, or run the workflow manually from the **Actions** tab.
@@ -499,12 +489,11 @@ Then open <http://localhost:4173/austin-arena-ganeshotsav-2026/>. This mounts th
 
 ### Keeping the schedule fresh
 
-A static export snapshots the sheet at build time. To publish changes:
-
-- **With GitHub Actions** — nothing to do; the scheduled run rebuilds every 6 hours. Trigger it manually from the Actions tab for an immediate update.
-- **With the CLI** — run `npm run deploy` again.
-
-If you need edits to appear within seconds, deploy to Vercel instead and use [on-demand revalidation](#publishing-sheet-edits-instantly).
+You rarely need to rebuild for schedule changes: the browser refetches the sheet
+on every page load, so a committee edit appears the next time anyone opens or
+refreshes the site. A rebuild (push to `main`, or `npm run deploy`) is only needed
+when you change **code**. The initial HTML served before the browser fetch
+completes still reflects the sheet as of the last build.
 
 ### Custom domain
 
@@ -523,52 +512,11 @@ GITHUB_PAGES_BASE_PATH= NEXT_PUBLIC_SITE_URL=https://your-domain.com npm run dep
 | Site loads with no CSS | `.nojekyll` missing | Deploy with `--dotfiles` (already in `npm run deploy`) |
 | 404 on every page | Wrong base path | Set `GITHUB_PAGES_BASE_PATH` to `/<repo-name>` |
 | Images broken, text fine | Base path missing on assets | Run `npm run verify:static` — it lists every bad reference |
-| Schedule is out of date | Static build snapshots the sheet | Re-run the deploy or the Actions workflow |
+| Live edits not showing | Sheet URL not set as `NEXT_PUBLIC_`, or sheet not public | Use a `NEXT_PUBLIC_` sheet var and share the sheet as *Anyone with the link – Viewer* |
 | Registration does nothing | `NEXT_PUBLIC_REGISTRATION_ENDPOINT` unset | See [registration submissions](#registration-submissions) |
 
 ---
 
-## Deploying to Vercel
-
-1. Push the repository to GitHub, GitLab or Bitbucket.
-2. **Import Project** in Vercel and keep the detected Next.js defaults.
-3. Add environment variables under **Settings → Environment Variables**:
-
-   ```
-   NEXT_PUBLIC_SITE_URL=https://your-domain.com
-   GOOGLE_SHEET_ID=1AbC...XyZ
-   GOOGLE_SHEET_NAME=Events
-   REVALIDATE_SECRET=<random string>
-   ```
-
-4. Deploy.
-
-Notes:
-
-- The build runs `data:build` first, so the fallback snapshot is always in sync.
-- `/` and `/events` are static with 5-minute ISR; `/api/*` runs on demand.
-- Assets are served from `public/`; SVGs are optimised through `next/image` with a locked-down CSP.
-- If `NEXT_PUBLIC_SITE_URL` is unset, Vercel's production URL is used automatically.
-
----
-
-## Publishing sheet edits instantly
-
-By default a sheet edit appears within 5 minutes. To publish immediately:
-
-```bash
-curl -X POST "https://your-domain.com/api/revalidate?secret=$REVALIDATE_SECRET"
-```
-
-Response:
-
-```json
-{ "ok": true, "revalidated": "events", "at": "2026-09-08T05:42:35.808Z" }
-```
-
-You can wire this to a Google Sheets `onEdit` trigger so the site refreshes as the committee types.
-
----
 
 ## Accessibility, SEO and performance
 
@@ -590,11 +538,11 @@ You can wire this to a Google Sheets `onEdit` trigger so the site refreshes as t
 
 **Performance**
 
-- Server components by default; three small client islands
-- `next/image` with AVIF/WebP, explicit dimensions and `priority` on the logo
+- Thin server shells; interactivity in focused client views
+- `next/image` with explicit dimensions and `priority` on the logo
 - No layout shift in the countdown (space reserved during hydration)
 - `useDeferredValue` keeps search responsive on low-end phones
-- Static prerendering with background revalidation
+- Static prerendering with a live in-browser refresh
 
 ---
 
@@ -602,6 +550,6 @@ You can wire this to a Google Sheets `onEdit` trigger so the site refreshes as t
 
 **Change society details** — edit `src/config/site.ts` (name, address, aarti times, navigation, contribution options).
 
-**Change the data source** — replace `loadEvents()` in `src/domain/events/source.ts`. It only has to return `{ events, meta }`; everything downstream is unchanged.
+**Change the data source** — replace `loadEvents()` in `src/domain/events/source.ts` (build time) and `fetchEventsFromSheet()` in `src/domain/events/client-source.ts` (browser). Both only have to return `{ events, meta }`; everything downstream is unchanged.
 
 **Add an event field** — add the column to the sheet, add an alias in `COLUMN_ALIASES`, extend `EventRecord`, and render it in `EventCard`.

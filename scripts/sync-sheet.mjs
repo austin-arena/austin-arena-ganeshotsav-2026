@@ -4,8 +4,8 @@
  * Usage:
  *   npm run data:sync
  *
- * Reads GOOGLE_SHEET_CSV_URL, or GOOGLE_SHEET_ID (+ optional GOOGLE_SHEET_GID
- * / GOOGLE_SHEET_NAME) from the environment or .env.local.
+ * Reads NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL / GOOGLE_SHEET_CSV_URL, or the sheet id
+ * (+ optional gid / name) from the environment or .env.local.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -28,20 +28,25 @@ function loadEnvFile() {
 }
 
 function resolveCsvUrl() {
-  if (process.env.GOOGLE_SHEET_CSV_URL) {
-    return process.env.GOOGLE_SHEET_CSV_URL;
+  const directUrl =
+    process.env.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL || process.env.GOOGLE_SHEET_CSV_URL;
+  if (directUrl) {
+    return directUrl;
   }
 
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sheetId = process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID || process.env.GOOGLE_SHEET_ID;
   if (!sheetId) return null;
 
   const url = new URL(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq`);
   url.searchParams.set("tqx", "out:csv");
 
-  if (process.env.GOOGLE_SHEET_GID) {
-    url.searchParams.set("gid", process.env.GOOGLE_SHEET_GID);
-  } else if (process.env.GOOGLE_SHEET_NAME) {
-    url.searchParams.set("sheet", process.env.GOOGLE_SHEET_NAME);
+  const gid = process.env.NEXT_PUBLIC_GOOGLE_SHEET_GID || process.env.GOOGLE_SHEET_GID;
+  const sheetName = process.env.NEXT_PUBLIC_GOOGLE_SHEET_NAME || process.env.GOOGLE_SHEET_NAME;
+
+  if (gid) {
+    url.searchParams.set("gid", gid);
+  } else if (sheetName) {
+    url.searchParams.set("sheet", sheetName);
   }
 
   return url.toString();
@@ -53,7 +58,7 @@ const csvUrl = resolveCsvUrl();
 
 if (!csvUrl) {
   console.error(
-    "No sheet configured. Set GOOGLE_SHEET_CSV_URL or GOOGLE_SHEET_ID in .env.local first.",
+    "No sheet configured. Set NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL or NEXT_PUBLIC_GOOGLE_SHEET_ID in .env.local first.",
   );
   process.exit(1);
 }

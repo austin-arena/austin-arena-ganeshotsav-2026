@@ -1,14 +1,29 @@
 /**
  * Google Sheets data-source configuration.
  *
- * The site stays fully static: the sheet is read at build time and refreshed in
- * the background by Incremental Static Regeneration, so no backend is required.
+ * The site is a fully static GitHub Pages export. The sheet is read at build
+ * time for the initial HTML, and again in the browser on every page load so
+ * committee edits appear on refresh without a redeploy.
  */
 
-/** How long a generated page may serve before Next.js refetches the sheet. */
-export const EVENTS_REVALIDATE_SECONDS = Number(
-  process.env.EVENTS_REVALIDATE_SECONDS ?? 300,
-);
+/**
+ * Committed fallback for the events sheet, so every build (local and CI) can
+ * reach it without any `.env` setup or GitHub repository variables. This is
+ * safe because the sheet is a public, read-only "Publish to web" resource — it
+ * exposes nothing private.
+ *
+ * Environment variables (`NEXT_PUBLIC_GOOGLE_SHEET_*`) still take priority, so a
+ * fork can point at a different sheet without editing code.
+ *
+ * Note: a `/pub?output=csv` link is cached by Google for a few minutes. To make
+ * edits appear almost instantly, set `FALLBACK_SHEET_ID` + `FALLBACK_SHEET_GID`
+ * instead (leave `FALLBACK_SHEET_CSV_URL` empty) — that builds a `gviz/tq` URL,
+ * which reflects changes immediately.
+ */
+const FALLBACK_SHEET_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPlAeXrzC_nWNBJ4P37pSJPIBGMjGVpxsBMd4sVMe-44hMKp4Ho89ra_j8UjryIWiwsOxVhLkwUH8G/pub?gid=0&single=true&output=csv";
+const FALLBACK_SHEET_ID = "";
+const FALLBACK_SHEET_GID = "";
 
 function readEnv(...names: string[]): string {
   for (const name of names) {
@@ -24,25 +39,28 @@ function readEnv(...names: string[]): string {
 /**
  * Resolves the CSV endpoint for the events sheet.
  *
- * Accepts either a full published-CSV URL or a sheet id plus optional tab
- * name / gid. Returns `null` when the sheet is not configured, in which case
- * the committed fallback data is used.
+ * `NEXT_PUBLIC_` variables are read first because the same lookup runs in the
+ * browser, where only `NEXT_PUBLIC_` values exist. Falls back to the committed
+ * constants above. Accepts either a full published-CSV URL or a sheet id plus
+ * optional tab name / gid. Returns `null` when nothing is configured, in which
+ * case the committed snapshot is used.
  */
 export function getSheetCsvUrl(): string | null {
-  const directUrl = readEnv("GOOGLE_SHEET_CSV_URL", "NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL");
+  const directUrl =
+    readEnv("NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL", "GOOGLE_SHEET_CSV_URL") || FALLBACK_SHEET_CSV_URL;
 
   if (directUrl) {
     return directUrl;
   }
 
-  const sheetId = readEnv("GOOGLE_SHEET_ID", "NEXT_PUBLIC_GOOGLE_SHEET_ID");
+  const sheetId = readEnv("NEXT_PUBLIC_GOOGLE_SHEET_ID", "GOOGLE_SHEET_ID") || FALLBACK_SHEET_ID;
 
   if (!sheetId) {
     return null;
   }
 
-  const gid = readEnv("GOOGLE_SHEET_GID");
-  const sheetName = readEnv("GOOGLE_SHEET_NAME");
+  const gid = readEnv("NEXT_PUBLIC_GOOGLE_SHEET_GID", "GOOGLE_SHEET_GID") || FALLBACK_SHEET_GID;
+  const sheetName = readEnv("NEXT_PUBLIC_GOOGLE_SHEET_NAME", "GOOGLE_SHEET_NAME");
 
   const url = new URL(
     `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq`,
@@ -61,4 +79,3 @@ export function getSheetCsvUrl(): string | null {
 export function isSheetConfigured(): boolean {
   return getSheetCsvUrl() !== null;
 }
-

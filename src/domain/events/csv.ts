@@ -1,8 +1,8 @@
 /**
  * Minimal RFC 4180 CSV parser.
  *
- * Written without dependencies so it runs identically in the Node.js runtime,
- * during `next build`, and inside serverless functions on Vercel.
+ * Written without dependencies so it runs identically in Node during
+ * `next build` and in the browser on the live-refresh fetch.
  */
 
 export type CsvRow = Record<string, string>;

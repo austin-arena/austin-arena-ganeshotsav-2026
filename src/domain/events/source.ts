@@ -1,6 +1,6 @@
 import fallbackRows from "@/data/events.fallback.json";
 import { parseCsv } from "./csv";
-import { EVENTS_REVALIDATE_SECONDS, getSheetCsvUrl } from "./config";
+import { getSheetCsvUrl } from "./config";
 import { mapSheetRows } from "./mapper";
 import type { EventRecord, EventSheetRow, EventSourceMeta } from "./types";
 
@@ -39,8 +39,9 @@ function readFallback(warning?: string): EventSourceResult {
 /**
  * Loads events from the Google Sheet, falling back to the committed snapshot.
  *
- * The fetch is cached by Next.js and revalidated in the background, which keeps
- * pages static while letting the committee edit the sheet without a redeploy.
+ * Runs at build time to produce the initial static HTML. The browser refreshes
+ * the same data on every page load (see `client-source.ts`), so a static export
+ * still reflects sheet edits without a redeploy.
  */
 export async function loadEvents(): Promise<EventSourceResult> {
   const csvUrl = getSheetCsvUrl();
@@ -52,7 +53,6 @@ export async function loadEvents(): Promise<EventSourceResult> {
   try {
     const response = await fetch(csvUrl, {
       headers: { Accept: "text/csv,text/plain,*/*" },
-      next: { revalidate: EVENTS_REVALIDATE_SECONDS, tags: ["events"] },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 

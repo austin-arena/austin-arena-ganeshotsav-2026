@@ -48,10 +48,12 @@ jobs:
           # Repository variables (Settings → Secrets and variables → Actions).
           GITHUB_PAGES_BASE_PATH: ${{ vars.GITHUB_PAGES_BASE_PATH || format('/{0}', github.event.repository.name) }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
-          GOOGLE_SHEET_ID: ${{ vars.GOOGLE_SHEET_ID }}
-          GOOGLE_SHEET_NAME: ${{ vars.GOOGLE_SHEET_NAME }}
-          GOOGLE_SHEET_GID: ${{ vars.GOOGLE_SHEET_GID }}
-          GOOGLE_SHEET_CSV_URL: ${{ vars.GOOGLE_SHEET_CSV_URL }}
+          # NEXT_PUBLIC_ so the same URL is available to the browser, which
+          # refetches the sheet on every page load.
+          NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL: ${{ vars.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL }}
+          NEXT_PUBLIC_GOOGLE_SHEET_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_SHEET_ID }}
+          NEXT_PUBLIC_GOOGLE_SHEET_NAME: ${{ vars.NEXT_PUBLIC_GOOGLE_SHEET_NAME }}
+          NEXT_PUBLIC_GOOGLE_SHEET_GID: ${{ vars.NEXT_PUBLIC_GOOGLE_SHEET_GID }}
           NEXT_PUBLIC_REGISTRATION_ENDPOINT: ${{ vars.NEXT_PUBLIC_REGISTRATION_ENDPOINT }}
           NEXT_PUBLIC_REGISTRATION_SECRET: ${{ secrets.NEXT_PUBLIC_REGISTRATION_SECRET }}
         run: npm run build:static
