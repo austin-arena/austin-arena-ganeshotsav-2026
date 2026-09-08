@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 24" width="160" height="24" role="img" aria-label="Decorative divider">
+  <g fill="none" stroke="#d98a2b" stroke-width="1.6" stroke-linecap="round">
+    <path d="M4 12h48M108 12h48"/>
+  </g>
+  <g fill="#e0902f">
+    <circle cx="60" cy="12" r="3"/>
+    <circle cx="100" cy="12" r="3"/>
+    <path d="M80 3l4.4 6.6L92 12l-7.6 2.4L80 21l-4.4-6.6L68 12l7.6-2.4z"/>
+  </g>
+</svg>
+
