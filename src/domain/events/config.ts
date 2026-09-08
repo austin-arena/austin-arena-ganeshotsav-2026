@@ -22,7 +22,7 @@
  */
 const FALLBACK_SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSPlAeXrzC_nWNBJ4P37pSJPIBGMjGVpxsBMd4sVMe-44hMKp4Ho89ra_j8UjryIWiwsOxVhLkwUH8G/pub?gid=0&single=true&output=csv";
-const FALLBACK_SHEET_ID = "";
+const FALLBACK_SHEET_ID = "2PACX-1vSPlAeXrzC_nWNBJ4P37pSJPIBGMjGVpxsBMd4sVMe-44hMKp4Ho89ra_j8UjryIWiwsOxVhLkwUH8G";
 const FALLBACK_SHEET_GID = "";
 
 function readEnv(...names: string[]): string {
