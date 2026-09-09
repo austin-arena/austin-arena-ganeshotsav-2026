@@ -36,7 +36,12 @@ export default function SiteFooter() {
       </div>
 
       <div className="copyright">
-        © 2026 {SOCIETY.committee} · गणपती बाप्पा मोरया!
+          <p>
+              &copy; 2026 {SOCIETY.committee} · गणपती बाप्पा मोरया!
+          </p>
+          <p>
+              Crafted with ❤️ by Sarang Patil &amp; the Austin Arena Cultural Committee
+          </p>
       </div>
     </footer>
   );

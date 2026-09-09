@@ -76,15 +76,15 @@ export default function HeroSection({ data }: HeroSectionProps) {
           <aside className="heroCard" aria-label="Festival blessing">
             <Image
               className="heroMotif"
-              src={asset("/ganpati-motif.svg")}
+              src={asset("/ganpati-circular-theme.svg")}
               width={240}
               height={240}
-              alt=""
+              alt="ganpati circular motif"
               aria-hidden="true"
               priority
             />
             <p className="heroCardMantra" lang="sa">
-              श्री गणेशाय नमः
+              श्री गणेशाय नमः ||
             </p>
             <p>May wisdom guide us and togetherness inspire us.</p>
             <Image
