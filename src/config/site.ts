@@ -39,8 +39,8 @@ export const SOCIETY = {
 } as const;
 
 export const AARTI_SCHEDULE = [
-  { title: "Morning Aarti", time: "8:00 AM", venue: "Ganesh Mandap" },
-  { title: "Evening Maha Aarti", time: "7:30 PM", venue: "Central Lawn" },
+  { title: "Morning Aarti", time: "09:30 AM", venue: "Ganesh Mandap" },
+  { title: "Evening Aarti", time: "08:00 PM", venue: "Ganesh Mandap" },
 ] as const;
 
 export const CONTRIBUTION_OPTIONS = [
