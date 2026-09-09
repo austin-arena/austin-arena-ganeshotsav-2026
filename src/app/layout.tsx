@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
   icons: {
-    icon: [{ url: asset("/icon.svg"), type: "image/svg+xml" }],
+    icon: [{ url: asset("/ganpati-circular-theme.svg"), type: "image/svg+xml" }],
     apple: [{ url: asset("/austin-arena-logo.png") }],
   },
   formatDetection: { telephone: true, address: false, email: true },
