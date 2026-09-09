@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Rich Burgundy Radial Background -->
+    <radialGradient id="discBg" cx="50%" cy="50%" r="50%" fx="45%" fy="45%">
+      <stop offset="0%" stop-color="#7A1C16"/>
+      <stop offset="65%" stop-color="#4A0E0A"/>
+      <stop offset="100%" stop-color="#280503"/>
+    </radialGradient>
+
+    <!-- Metallic Gold Gradient -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE9A3"/>
+      <stop offset="35%" stop-color="#F7B23B"/>
+      <stop offset="70%" stop-color="#D97F10"/>
+      <stop offset="100%" stop-color="#FCEBA0"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadow for Outer Ring -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#120101" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Ring Frame -->
+  <circle cx="200" cy="200" r="185" fill="none" stroke="url(#goldGradient)" stroke-width="3.5" filter="url(#shadow)"/>
+  <circle cx="200" cy="200" r="179" fill="none" stroke="url(#goldGradient)" stroke-width="1.2" stroke-opacity="0.5"/>
+
+  <!-- Main Background Disc -->
+  <circle cx="200" cy="200" r="175" fill="url(#discBg)"/>
+
+  <!-- Inner Dashed Circular Border -->
+  <circle cx="200" cy="200" r="162" fill="none" stroke="url(#goldGradient)" stroke-width="1.5" stroke-dasharray="4, 5" stroke-opacity="0.6"/>
+
+  <!-- Decorative Halo Echo -->
+  <circle cx="200" cy="190" r="110" fill="none" stroke="url(#goldGradient)" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2, 6"/>
+  <circle cx="200" cy="190" r="90" fill="none" stroke="url(#goldGradient)" stroke-width="1" stroke-opacity="0.2"/>
+
+  <!-- Lord Ganesha Artwork -->
+  <g fill="none" stroke="url(#goldGradient)" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- Sacred Crown (Mukut) -->
+    <path d="M 182 86 C 182 60 218 60 218 86 Z" stroke-width="2.5" fill="url(#goldGradient)" fill-opacity="0.12"/>
+    <path d="M 174 96 C 188 90 212 90 226 96" stroke-width="2.5"/>
+    <circle cx="200" cy="56" r="4.5" fill="url(#goldGradient)"/>
+
+    <!-- Left Ear -->
+    <path d="M 174 105 C 110 100 95 165 150 185 C 165 190 174 180 174 168" stroke-width="3.5"/>
+    <path d="M 168 118 C 122 115 112 155 148 170" stroke-width="1.5" stroke-opacity="0.6"/>
+
+    <!-- Right Ear -->
+    <path d="M 226 105 C 290 100 305 165 250 185 C 235 190 226 180 226 168" stroke-width="3.5"/>
+    <path d="M 232 118 C 278 115 288 155 252 170" stroke-width="1.5" stroke-opacity="0.6"/>
+
+    <!-- Head & Auspicious Left-Curving Trunk -->
+    <path d="M 182 110 C 182 150 148 220 195 242 C 230 258 245 230 222 216 C 200 204 195 228 214 232" stroke-width="4"/>
+
+    <!-- Tilak & Sacred Dot -->
+    <path d="M 188 115 Q 200 122 212 115" stroke-width="2"/>
+    <path d="M 189 123 Q 200 130 211 123" stroke-width="2"/>
+    <ellipse cx="200" cy="142" rx="4" ry="7" fill="url(#goldGradient)"/>
+
+    <!-- Broken Tusk Accent (Ekadanta) -->
+    <path d="M 224 182 L 232 185" stroke-width="2.5"/>
+
+    <!-- Base Aura / Seated Shape -->
+    <path d="M 125 250 C 160 295 240 295 275 250" stroke-width="3"/>
+    <path d="M 140 270 C 175 305 225 305 260 270" stroke-width="1.8" stroke-opacity="0.5"/>
+
+    <!-- Sacred Modak -->
+    <path d="M 135 235 C 130 222 145 212 150 222 C 155 212 170 222 165 235 C 155 245 145 245 135 235 Z" fill="url(#goldGradient)" fill-opacity="0.25" stroke-width="1.8"/>
+
+  </g>
+
+  <!-- Base Decorative Dots -->
+  <circle cx="200" cy="315" r="4" fill="url(#goldGradient)"/>
+  <circle cx="182" cy="313" r="2.5" fill="url(#goldGradient)"/>
+  <circle cx="218" cy="313" r="2.5" fill="url(#goldGradient)"/>
+  <circle cx="166" cy="309" r="1.5" fill="url(#goldGradient)" fill-opacity="0.7"/>
+  <circle cx="234" cy="309" r="1.5" fill="url(#goldGradient)" fill-opacity="0.7"/>
+</svg>
