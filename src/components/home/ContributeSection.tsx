@@ -40,15 +40,15 @@ export default function ContributeSection() {
           })}
         </ul>
 
-        <div className="centerAction">
-          <RegisterLink
-            eventId="volunteer"
-            eventName="Volunteer Contribution"
-            className="button gold"
-          >
-            Register as Volunteer
-          </RegisterLink>
-        </div>
+        {/*<div className="centerAction">*/}
+        {/*  <RegisterLink*/}
+        {/*    eventId="volunteer"*/}
+        {/*    eventName="Volunteer Contribution"*/}
+        {/*    className="button gold"*/}
+        {/*  >*/}
+        {/*    Register as Volunteer*/}
+        {/*  </RegisterLink>*/}
+        {/*</div>*/}
       </div>
     </section>
   );
