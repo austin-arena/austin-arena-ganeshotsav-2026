@@ -70,9 +70,9 @@ export default function EventsExplorer({ events, categories }: EventsExplorerPro
             </div>
 
             <div className="advancedFilters">
-                <p className="advancedFiltersLabel">
-                    <SlidersHorizontal aria-hidden="true" /> Refine
-                </p>
+                {/*<p className="advancedFiltersLabel">*/}
+                {/*    <SlidersHorizontal aria-hidden="true" /> Refine*/}
+                {/*</p>*/}
 
                 <div className="filterField">
                     <label htmlFor="filter-category">Category</label>

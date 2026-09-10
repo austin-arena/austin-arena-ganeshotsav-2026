@@ -548,15 +548,17 @@ button {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.9rem;
+    justify-content: flex-start;
+    gap: clamp(0.45rem, 2vw, 0.9rem);
     margin-bottom: 1.1rem;
+    overflow: hidden;
 }
 
 .filterGroup {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
+    gap: clamp(0.35rem, 1.5vw, 0.45rem);
+    min-width: 0;
 }
 
 .filterChip {
@@ -564,22 +566,24 @@ button {
     align-items: center;
     gap: 0.4rem;
     min-height: 44px;
-    padding: 0.5rem 0.95rem;
+    padding: 0.5rem clamp(0.6rem, 2vw, 0.95rem);
     border: 1px solid var(--line);
     border-radius: var(--radius-pill);
     background: #fff;
     color: var(--ink-500);
-    font-size: 0.88rem;
+    font-size: clamp(0.8rem, 2vw, 0.88rem);
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
     transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .filterChip span {
-    padding: 0.1rem 0.45rem;
+    padding: 0.1rem clamp(0.3rem, 1.5vw, 0.45rem);
     border-radius: var(--radius-pill);
     background: var(--cream-100);
-    font-size: 0.75rem;
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+    white-space: nowrap;
 }
 
 .filterChip:hover {
@@ -591,6 +595,7 @@ button {
     background: linear-gradient(120deg, var(--maroon-600), var(--maroon-700));
     border-color: transparent;
     color: #fff;
+    flex-shrink: 0;
 }
 
 .filterChip.active span {
