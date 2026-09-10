@@ -18,7 +18,7 @@ export default function RegisterSection({ events }: RegisterSectionProps) {
           align="left"
         />
 
-        <RegistrationForm events={events} />
+        {/*<RegistrationForm events={events} />*/}
       </div>
     </section>
   );

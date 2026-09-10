@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/#today", label: "Today’s Event" },
   { href: "/events", label: "All Events" },
   { href: "/#contribute", label: "Contribute" },
-  { href: "/#register", label: "Register", cta: true },
+  // { href: "/#register", label: "Register", cta: true },
 ];
 
 export default function Header() {
